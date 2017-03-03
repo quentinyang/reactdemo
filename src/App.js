@@ -1,3 +1,4 @@
+import { is } from 'immutable';
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
@@ -18,13 +19,38 @@ let generator = (app) => {
 
     componentDidUpdate() {
       console.log(app + ' is updated.');
-      // return false;
     }
 
+    // 使用Immutable增加性能
+    // shouldComponentUpdate(nextProps = {}, nextState = {}) {
+    //   const thisProps = this.props || {},
+    //         thisState = this.state || {};
+
+    //   nextState = nextState || {};
+
+    //   if (Object.keys(thisProps).length !== Object.keys(nextProps).length ||
+    //       Object.keys(thisState).length !== Object.keys(nextState).length) {
+    //     return true;
+    //   }
+
+    //   for (const key in nextProps) {
+    //     if (!is(thisProps[key], nextProps[key])) {
+    //       return true;
+    //     }
+    //   }
+
+    //   for (const key in nextState) {
+    //     if (thisState[key] !== nextState[key] || !is(thisState[key], nextState[key])) {
+    //       return true;
+    //     }
+    //   }
+    //   return false;
+    // }
+
     render() {
+      console.log(app, 'rendering')
       return (
-        <div className={"node "+app} key={app}>
-          {app}
+        <div className={"node " + app} data-name={app}>
          {this.props.children}
         </div>
       );
@@ -35,69 +61,101 @@ let generator = (app) => {
 
 }
 
-var Root = generator('R');
+var R = generator('R');
 let A = generator('A');
 let B = generator('B');
 let C = generator('C');
 let D = generator('D');
-let E = generator('E');
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {shape: ''};
 
     this.changeShape = this.changeShape.bind(this);
+    this.state = {shape: ''};
   }
 
   shape1() {
     return (
-      <A>
-        <B/>
-      </A>
+      <R>
+        <A >
+          <B />
+        </A>
+      </R>
     );
   }
   shape2() {
     return (
-      <A>
-        <C/>
-      </A>
+      <R>
+        <A>
+          <C/>
+        </A>
+      </R>
     );
   }
   shape3() {
     return (
-      <A>
-        <B key="B"/>
-        <C key="C"/>
-      </A>
+      <R>
+        <A>
+          <B/>
+          <C/>
+        </A>
+
+      </R>
     );
   }
   shape4() {
     return (
-      <A>
-        <C key="C"/>
-        <B key="B"/>
-      </A>
+      <R>
+        <A>
+          <B/>
+        </A>
+        <C>
+          <D/>
+        </C>
+      </R>
     );
   }
   shape5() {
     return (
-      <A>
-        <B key="B"/>
-        <C key="C"/>
-        <E key="E"/>
-        <E/>
-      </A>
+      <R>
+        <A>
+          <B/>
+          <C>
+            <D/>
+          </C>
+        </A>
+      </R>
     );
   }
   shape6() {
     return (
-      <A>
-        <B key="B" className="test"/>
-        <C key="C"/>
-        <E key="E"/>
-        <E className="test2" data-t ="aa"/>
-      </A>
+      <R>
+        <A>
+          <B/>
+          <C/>
+        </A>
+      </R>
+    );
+  }
+  shape7() {
+    return (
+      <R>
+        <A>
+          <B key="B"/>
+          <C key="C"/>
+        </A>
+      </R>
+    );
+  }
+  shape8() {
+    return (
+      <R>
+        <A>
+          <C key="C"/>
+          <B key="B"/>
+        </A>
+      </R>
     );
   }
 
@@ -106,15 +164,14 @@ class App extends Component {
     console.log('======' + e.target.name + '=======')
   }
 
-  render() {
-    var self = this;
-    function getShape() {
-      if (self[self.state.shape]) {
-        return (<Root>{self[self.state.shape]()}</Root>);
-      }
-      return "";
+  getShape() {
+    if (this[this.state.shape]) {
+      return this[this.state.shape]();
     }
+    return "";
+  }
 
+  render() {
     return (
       <div className="App">
         <div className="App-header">
@@ -125,19 +182,19 @@ class App extends Component {
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
 
-        <div className="">
-          <input type="button" name="shape1" value="shape1" onClick={this.changeShape} />
-          <input type="button" name="shape2" value="shape2" onClick={this.changeShape} />
-          <input type="button" name="shape3" value="shape3" onClick={this.changeShape} />
-          <input type="button" name="shape4" value="shape4" onClick={this.changeShape} />
-          <input type="button" name="shape5" value="shape5" onClick={this.changeShape} />
-          <input type="button" name="shape6" value="shape6" onClick={this.changeShape} />
+        <div >
+          <input type="button" name="shape1" value="Shape1" onClick={this.changeShape} />
+          <input type="button" name="shape2" value="Shape2" onClick={this.changeShape} />
+          <input type="button" name="shape3" value="Shape3" onClick={this.changeShape} />
+          <input type="button" name="shape4" value="Shape4" onClick={this.changeShape} />
+          <input type="button" name="shape5" value="Shape5" onClick={this.changeShape} />
+          <input type="button" name="shape6" value="Shape6" onClick={this.changeShape} />
+          <input type="button" name="shape7" value="Shape7" onClick={this.changeShape} />
+          <input type="button" name="shape8" value="Shape8" onClick={this.changeShape} />
           <input type="button" name="clear" value="Clear" onClick={this.changeShape} />
         </div>
 
-
-        {getShape()}
-
+        {this.getShape()}
 
       </div>
     );
